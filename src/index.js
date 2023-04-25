@@ -28,45 +28,28 @@ app.use(
       const allowedOrigins = ALLOWED_ORIGINS;
       // Check if the origin is allowed
       if (allowedOrigins.indexOf(origin) === -1) {
-        // If the origin is not allowed, return an error
-        const msg =
-          'The CORS policy for this site does not allow access from the specified origin.';
-        return callback(new Error(msg), false);
+        // If the origin is not allowed, set the Access-Control-Allow-Origin header to null
+        return callback(null, false);
       }
-
-      // If the origin is allowed, continue with the request
-      return callback(null, true);
+      // If the origin is allowed, set the Access-Control-Allow-Origin header to the origin and continue with the request
+      return callback(null, origin);
     },
     credentials: true, // Set to allow credentials in the request
   })
 );
 
-
-// Handle CORS errors and internal server errors
-app.use((err, req, res, next) => {
-  if (
-    err instanceof Error &&
-    err.message ===
-      'The CORS policy for this site does not allow access from the specified origin.'
-  ) {
-    res.status(403).json({ error: 'CORS error: ' + err.message });
-  } else {
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
 // Define a ping route for checking if the server is running
 app.get('/api/v1/ping', async (req, res) => {
   res
     .status(200)
-    .json({ status: true, message: 'Server is running. Code deployed on 24-Apr-2023 02:00' });
+    .json({ status: true, message: 'Server is running. Code deployed on 26-Apr-2023 00:05' });
 });
 
 // Use the routes defined in the "routes" module
 app.use('/api', routes);
 
 // Handle 404 errors
-app.use((req, res, next) => {
+app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
@@ -78,12 +61,11 @@ mongoose
   })
   .then(() => {
     console.log('Connected to database');
-    if(NODE_ENV === "development" || NODE_ENV === "test") {
+    if(NODE_ENV === "development") {
       app.listen(PORT, () => {
         console.log(`Server started on localhost and listening on port ${PORT}`);
       });
-    }
-    
+    } 
   })
   .catch((err) => console.error('Error connecting to MongoDB', err));
 

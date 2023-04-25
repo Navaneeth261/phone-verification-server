@@ -328,7 +328,7 @@ export const verifyCode = async (req, res, action_type) => {
         httpOnly: true,
         secure: true,
         sameSite: "strict",
-        maxAge: 120 * 60 * 1000, // token expires in 2 hours
+        maxAge: 2 * 60 * 1000, // token expires in 2 hours
       });
 
       // Return the response with user information and JWT token
@@ -340,7 +340,6 @@ export const verifyCode = async (req, res, action_type) => {
           userId: user.userId,
           phoneNumber: user.phoneNumber,
         },
-        token,
       });
     }
   } catch (err) {
