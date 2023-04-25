@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 // Import environment variables
 import {
   NODE_ENV,
+  COOKIE_DOMAIN,
   JWT_SECRET,
   VERIFICATION_CODE_EXPIRE_IN_MINS,
   MAX_VERIFICATION_ATTEMPTS,
@@ -328,7 +329,8 @@ export const verifyCode = async (req, res, action_type) => {
         httpOnly: true,
         secure: true,
         sameSite: "strict",
-        maxAge: 2 * 60 * 1000, // token expires in 2 hours
+        maxAge: 2 * 60 * 1000, // token expires in 2 minutes
+        domain: COOKIE_DOMAIN
       });
 
       // Return the response with user information and JWT token

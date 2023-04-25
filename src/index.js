@@ -42,7 +42,7 @@ app.use(
 app.get('/api/v1/ping', async (req, res) => {
   res
     .status(200)
-    .json({ status: true, message: 'Server is running. Code deployed on 26-Apr-2023 00:05' });
+    .json({ status: true, message: 'Server is running. Code deployed on 26-Apr-2023 01:21' });
 });
 
 // Use the routes defined in the "routes" module
@@ -58,6 +58,7 @@ mongoose
   .connect(MONGODB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    connectTimeoutMS: 30000,
   })
   .then(() => {
     console.log('Connected to database');
