@@ -37,8 +37,10 @@ app.use(
       // If the origin is allowed, continue with the request
       return callback(null, true);
     },
+    credentials: true, // Set to allow credentials in the request
   })
 );
+
 
 // Handle CORS errors and internal server errors
 app.use((err, req, res, next) => {

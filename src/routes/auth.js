@@ -1,5 +1,5 @@
 import express from 'express';
-import { getRegisterCode, getLoginCode, registerWithCode, loginWithCode, verifyTokenResponse } from '../controllers/auth.js';
+import { getRegisterCode, getLoginCode, registerWithCode, loginWithCode, verifyTokenResponse, logout } from '../controllers/auth.js';
 
 const router = express.Router();
 
@@ -22,5 +22,9 @@ router.post('/register-with-code', registerWithCode);
 // POST /auth/login-with-code
 // Route handler for logging in a user with a code
 router.post('/login-with-code', loginWithCode);
+
+// POST /auth/logout
+// Route handler for logging out the user
+router.get('/logout', logout);
 
 export default router;

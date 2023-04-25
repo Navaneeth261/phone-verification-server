@@ -1,0 +1,239 @@
+{
+	"info": {
+		"_postman_id": "acb5dce2-a6f8-4348-b59c-d7a198ea9a2b",
+		"name": "Phone Verification",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Generate Register Code",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"countryCode\" : \"+91\",\r\n    \"phoneNumber\" : \"9025865386\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/api/auth/get-register-code",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"get-register-code"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generate Login Code",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"countryCode\" : \"+91\",\r\n    \"phoneNumber\" : \"9025865385\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/api/auth/get-login-code",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"get-login-code"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register With Code",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"countryCode\" : \"+91\",\r\n    \"phoneNumber\" : \"9025865385\",\r\n    \"verificationCode\" : \"477602\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/api/auth/register-with-code",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register-with-code"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login With Code",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"countryCode\" : \"+91\",\r\n    \"phoneNumber\" : \"9025865385\",\r\n    \"verificationCode\" : \"815447\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/api/auth/login-with-code",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login-with-code"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ping-TEST",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/api/v1/ping",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/api/users/profile",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Token",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/api/verify-token",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"verify-token"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "https://9nykq87i2h.execute-api.ap-south-1.amazonaws.com/test",
+			"type": "default"
+		},
+		{
+			"key": "token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiTkFWQU5FRVRIQUtBTk5BTiBBIEQiLCJ1c2VySWQiOiJlMzgzNjE3YS1iYTQ4LTQwNzAtOWM1NC1kMDZiYTViZmFjMjkiLCJwaG9uZU51bWJlciI6Iis5MTkwMjU4NjUzODUiLCJpYXQiOjE2ODIxOTM3MzQsImV4cCI6MTY4MjIwMDkzNH0.UTT6wC40oxL4-DcgtckK3dA4pJnKZQPR-B4ZjMqazjI",
+			"type": "default"
+		}
+	]
+}
