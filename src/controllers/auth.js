@@ -11,7 +11,6 @@ import {
   MAX_VERIFICATION_ATTEMPTS,
   HASH_VERIFICATION_CODE,
   SEND_SMS,
-  COOKIE_DOMAIN,
 } from "../config/env.js";
 
 // Import local modules
@@ -334,7 +333,6 @@ export const verifyCode = async (req, res, action_type) => {
         secure: true,
         sameSite: "none",
         maxAge: 2 * 60 * 1000, // token expires in 2 minutes
-        domain: COOKIE_DOMAIN,
       });
 
       // Return the response with user information and JWT token
