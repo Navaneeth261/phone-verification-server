@@ -29,7 +29,7 @@ jobs:
         run: npm install
 
       - name: Deploy to Lambda
-        uses: appleboy/lambda-action@v1
+        uses: appleboy/lambda-action
         with:
           aws_access_key_id: ${{ secrets.SNS_AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.SNS_AWS_SECRET_ACCESS_KEY }}
