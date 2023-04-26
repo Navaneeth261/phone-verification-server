@@ -15,6 +15,7 @@ export const JWT_SECRET = process.env.JWT_SECRET; // Secret key used for JWT gen
 export const HASH_VERIFICATION_CODE = process.env.HASH_VERIFICATION_CODE === 'true'; // Whether or not to hash the verification code
 export const VERIFICATION_CODE_EXPIRE_IN_MINS = process.env.VERIFICATION_CODE_EXPIRE_IN_MINS; // Expiration time (in minutes) for verification codes
 export const MAX_VERIFICATION_ATTEMPTS = process.env.MAX_VERIFICATION_ATTEMPTS; // Maximum number of attempts allowed for verification codes
+export const SEND_SMS = process.env.SEND_SMS === 'true'; // For Developement Purpose
 
 export const AWS_ACCESS_KEY_ID = process.env.SNS_AWS_ACCESS_KEY_ID; // AWS Access Key ID for SNS service
 export const AWS_SECRET_ACCESS_KEY = process.env.SNS_AWS_SECRET_ACCESS_KEY; // AWS Secret Access Key for SNS service

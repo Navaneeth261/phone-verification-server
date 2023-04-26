@@ -6,11 +6,11 @@ import { v4 as uuidv4 } from "uuid";
 // Import environment variables
 import {
   NODE_ENV,
-  COOKIE_DOMAIN,
   JWT_SECRET,
   VERIFICATION_CODE_EXPIRE_IN_MINS,
   MAX_VERIFICATION_ATTEMPTS,
   HASH_VERIFICATION_CODE,
+  SEND_SMS,
 } from "../config/env.js";
 
 // Import local modules
@@ -52,7 +52,7 @@ export const loginWithCode = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-  res.clearCookie('jwt'); // replace "cookieName" with the actual name of your cookie
+  res.clearCookie("jwt"); // replace "cookieName" with the actual name of your cookie
   res.status(200).json({ message: "Logout successful" });
 };
 
@@ -116,6 +116,8 @@ const generateVerificationCode = async (req, res, action_type) => {
     if (HASH_VERIFICATION_CODE) {
       const salt = await bcrypt.genSalt();
       verificationCode = await bcrypt.hash(_verificationCode, salt);
+    } else {
+      verificationCode = _verificationCode
     }
 
     // set the verification code expiration time to 2 minutes from now
@@ -134,13 +136,14 @@ const generateVerificationCode = async (req, res, action_type) => {
     const message = `Your one time verification code to ${action_type} is ${_verificationCode}. Valid for 2mins.`;
     let sendCodeRes;
     try {
-      if (NODE_ENV === "development") {
-        sendCodeRes = { status: true }; // use a dummy response for development purposes
-      } else {
+      if (SEND_SMS) {
         sendCodeRes = await sendVerificationCodeToPhoneNumber(
           phoneNumber,
           message
         );
+      } else {
+        console.log("SMS NOT SENT for testing")
+        sendCodeRes = { status: true }; // use a dummy response for development purposes
       }
     } catch (err) {
       sendCodeRes = {
@@ -328,9 +331,8 @@ export const verifyCode = async (req, res, action_type) => {
       res.cookie("jwt", token, {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
+        sameSite: "none",
         maxAge: 2 * 60 * 1000, // token expires in 2 minutes
-        domain: COOKIE_DOMAIN
       });
 
       // Return the response with user information and JWT token
