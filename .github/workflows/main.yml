@@ -3,11 +3,12 @@ name: Deploy to Lambda
 on:
   push:
     branches:
-      - test
+      - master
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
