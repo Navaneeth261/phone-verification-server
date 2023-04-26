@@ -6,7 +6,7 @@ dotenv.config({path:'.env'});
 // Get the values of environment variables
 export const NODE_ENV = process.env.NODE_ENV; // Environment in which the app is running (development, production, test)
 export const PORT = process.env.PORT; // Port on which the app will run
-export const COOKIE_DOMAIN = NODE_ENV === "development" ? "localhost" : ".cloudfront.net"
+export const COOKIE_DOMAIN = NODE_ENV === "development" ? "localhost" : "d30jkiuzv09brk.cloudfront.net"
 
 export const MONGODB_URL = process.env.MONGODB_URL; // MongoDB connection URL
 export const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS.split(','); // Allowed origins for CORS
