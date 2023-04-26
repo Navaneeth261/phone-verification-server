@@ -14,20 +14,20 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "MONGODB_URL=${{ secrets.outputs.MONGODB_URL }}" >> .env
-          echo "JWT_SECRET=${{ secrets.outputs.JWT_SECRET }}" >> .env
-          echo "SNS_AWS_ACCESS_KEY_ID=${{ secrets.outputs.SNS_AWS_ACCESS_KEY_ID }}" >> .env
-          echo "SNS_AWS_SECRET_ACCESS_KEY=${{ secrets.outputs.SNS_AWS_SECRET_ACCESS_KEY }}" >> .env
-          echo "SNS_AWS_REGION=${{ secrets.outputs.SNS_AWS_REGION }}" >> .env
-          echo "ALLOWED_ORIGINS=${{ variables.outputs.ALLOWED_ORIGINS }}" >> .env
-          echo "HASH_VERIFICATION_CODE=${{ variables.outputs.HASH_VERIFICATION_CODE }}" >> .env
-          echo "VERIFICATION_CODE_EXPIRE_IN_MINS=${{ variables.outputs.VERIFICATION_CODE_EXPIRE_IN_MINS }}" >> .env
-          echo "MAX_VERIFICATION_ATTEMPTS=${{ variables.outputs.MAX_VERIFICATION_ATTEMPTS }}" >> .env
-          echo "SEND_SMS=${{ variables.outputs.SEND_SMS }}" >> .env
+          echo "MONGODB_URL=${{ secrets.MONGODB_URL }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "SNS_AWS_ACCESS_KEY_ID=${{ secrets.SNS_AWS_ACCESS_KEY_ID }}" >> .env
+          echo "SNS_AWS_SECRET_ACCESS_KEY=${{ secrets.SNS_AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "SNS_AWS_REGION=${{ secrets.SNS_AWS_REGION }}" >> .env
+          echo "ALLOWED_ORIGINS=${{ variables.ALLOWED_ORIGINS }}" >> .env
+          echo "HASH_VERIFICATION_CODE=${{ variables.HASH_VERIFICATION_CODE }}" >> .env
+          echo "VERIFICATION_CODE_EXPIRE_IN_MINS=${{ variables.VERIFICATION_CODE_EXPIRE_IN_MINS }}" >> .env
+          echo "MAX_VERIFICATION_ATTEMPTS=${{ variables.MAX_VERIFICATION_ATTEMPTS }}" >> .env
+          echo "SEND_SMS=${{ variables.SEND_SMS }}" >> .env
 
       - name: Print .env file
           run: cat .env
-          
+
       - name: Install dependencies
         run: npm install
 
