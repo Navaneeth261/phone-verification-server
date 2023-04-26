@@ -1,0 +1,50 @@
+name: Deploy to Lambda
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create .env file
+        run: |
+          echo "MONGODB_URL=${{ secrets.MONGODB_URL }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "SNS_AWS_ACCESS_KEY_ID=${{ secrets.SNS_AWS_ACCESS_KEY_ID }}" >> .env
+          echo "SNS_AWS_SECRET_ACCESS_KEY=${{ secrets.SNS_AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "SNS_AWS_REGION=${{ secrets.SNS_AWS_REGION }}" >> .env
+          echo "ALLOWED_ORIGINS=${{ vars.ALLOWED_ORIGINS }}" >> .env
+          echo "HASH_VERIFICATION_CODE=${{ vars.HASH_VERIFICATION_CODE }}" >> .env
+          echo "VERIFICATION_CODE_EXPIRE_IN_MINS=${{ vars.VERIFICATION_CODE_EXPIRE_IN_MINS }}" >> .env
+          echo "MAX_VERIFICATION_ATTEMPTS=${{ vars.MAX_VERIFICATION_ATTEMPTS }}" >> .env
+          echo "SEND_SMS=${{ vars.SEND_SMS }}" >> .env
+
+      - name: Print .env file
+        run: cat .env
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Update Lambda function code
+        run: |
+          zip -r function.zip .
+          aws lambda update-function-code --function-name ${{ secrets.AWS_LAMBDA_FUNCTION }} --zip-file fileb://function.zip

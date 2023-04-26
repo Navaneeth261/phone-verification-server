@@ -1,0 +1,185 @@
+{
+	"info": {
+		"_postman_id": "acb5dce2-a6f8-4348-b59c-d7a198ea9a2b",
+		"name": "Phone Verification",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Generate Register Code",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"countryCode\" : \"+91\",\r\n    \"phoneNumber\" : \"9025865385\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/api/auth/get-register-code"
+			},
+			"response": []
+		},
+		{
+			"name": "Generate Login Code",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"countryCode\" : \"+91\",\r\n    \"phoneNumber\" : \"9025865385\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/api/auth/get-login-code"
+			},
+			"response": []
+		},
+		{
+			"name": "Register With Code",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{token}}"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"countryCode\" : \"+91\",\r\n    \"phoneNumber\" : \"9025865385\",\r\n    \"verificationCode\" : \"477602\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/api/auth/register-with-code"
+			},
+			"response": []
+		},
+		{
+			"name": "Login With Code",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"countryCode\" : \"+91\",\r\n    \"phoneNumber\" : \"9025865385\",\r\n    \"verificationCode\" : \"857679\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/api/auth/login-with-code"
+			},
+			"response": []
+		},
+		{
+			"name": "Logout and Clear Coookies",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiS2FubmFuIiwidXNlcklkIjoiNjZhNGNjNzctYTZhMi00ODYzLThiN2QtMmJjNjhiNTg2ZGY3IiwicGhvbmVOdW1iZXIiOiIrOTE5MDI1ODY1Mzg1IiwiaWF0IjoxNjgyNTA3MjE2LCJleHAiOjE2ODI1MTQ0MTZ9.cFQtekDDr82s16KbOtPl7GBmJfyW1SBmS8ZuxZ9zIg8; Max-Age=120; Domain=9nykq87i2h.execute-api.ap-south-1.amazonaws.com; Path=/; Expires=Wed, 26 Apr 2023 11:08:56 GMT; HttpOnly; Secure; SameSite=None",
+						"type": "default"
+					}
+				],
+				"url": "{{host}}/logout"
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Token - For Sesstion Persistence",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{token}}"
+					}
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiTmF2YW5lZXRoYWthbm5hbiBBIiwidXNlcklkIjoiNmZiODAyMmEtNDRkMi00ZmMyLWE3OTEtOGI5MzEzMGVkOTNjIiwicGhvbmVOdW1iZXIiOiIrOTE5MDI1ODY1Mzg1IiwiaWF0IjoxNjgyNDIyNzMyLCJleHAiOjE2ODI0Mjk5MzJ9.OxCF86PF1LM0Q4of_DIep1gqHVgLuIIUcGVJK8nSslI; Max-Age=7200; Path=/; Expires=Tue, 25 Apr 2023 13:38:52 GMT; HttpOnly; Secure; SameSite=Strict",
+						"type": "default"
+					}
+				],
+				"url": "{{host}}/api/verify-token"
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{token}}"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "{{host}}/api/users/profile"
+			},
+			"response": []
+		},
+		{
+			"name": "Ping-TEST",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Origin",
+						"value": "https://d30jkiuzv09brk.cloudfront.net/",
+						"type": "default"
+					}
+				],
+				"url": "https://7yp0e71iih.execute-api.ap-south-1.amazonaws.com/prod/api/v1/ping"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "https://9nykq87i2h.execute-api.ap-south-1.amazonaws.com/test",
+			"type": "default"
+		},
+		{
+			"value": "",
+			"type": "default",
+			"disabled": true
+		}
+	]
+}
