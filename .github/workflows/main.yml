@@ -28,6 +28,11 @@ jobs:
       - name: Print .env file
         run: cat .env
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18
+
       - name: Install dependencies
         run: npm install
 
@@ -41,4 +46,4 @@ jobs:
       - name: Update Lambda function code
         run: |
           zip -r function.zip .
-          aws lambda update-function-code --function-name PhoneVerification-API --zip-file fileb://function.zip
+          aws lambda update-function-code --function-name ${{ secrets.AWS_LAMBDA_FUNCTION }} --zip-file fileb://function.zip
