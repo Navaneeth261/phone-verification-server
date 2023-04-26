@@ -53,7 +53,12 @@ export const loginWithCode = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-  res.clearCookie("jwt"); // replace "cookieName" with the actual name of your cookie
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    domain: COOKIE_DOMAIN
+  });  
   res.status(200).json({ message: "Logout successful" });
 };
 
