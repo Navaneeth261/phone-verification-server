@@ -19,17 +19,17 @@ jobs:
           echo "SNS_AWS_ACCESS_KEY_ID=${{ steps.secrets.outputs.SNS_AWS_ACCESS_KEY_ID }}" >> .env
           echo "SNS_AWS_SECRET_ACCESS_KEY=${{ steps.secrets.outputs.SNS_AWS_SECRET_ACCESS_KEY }}" >> .env
            echo "SNS_AWS_REGION=${{ steps.secrets.outputs.SNS_AWS_REGION }}" >> .env
-          echo "ALLOWED_ORIGINS=${{ steps.secrets.outputs.ALLOWED_ORIGINS }}" >> .env
-          echo "HASH_VERIFICATION_CODE=${{ steps.secrets.outputs.HASH_VERIFICATION_CODE }}" >> .env
-          echo "VERIFICATION_CODE_EXPIRE_IN_MINS=${{ steps.secrets.outputs.VERIFICATION_CODE_EXPIRE_IN_MINS }}" >> .env
-          echo "MAX_VERIFICATION_ATTEMPTS=${{ steps.secrets.outputs.MAX_VERIFICATION_ATTEMPTS }}" >> .env
-          echo "SEND_SMS=${{ steps.secrets.outputs.SEND_SMS }}" >> .env
+          echo "ALLOWED_ORIGINS=${{ steps.variables.outputs.ALLOWED_ORIGINS }}" >> .env
+          echo "HASH_VERIFICATION_CODE=${{ steps.variables.outputs.HASH_VERIFICATION_CODE }}" >> .env
+          echo "VERIFICATION_CODE_EXPIRE_IN_MINS=${{ steps.variables.outputs.VERIFICATION_CODE_EXPIRE_IN_MINS }}" >> .env
+          echo "MAX_VERIFICATION_ATTEMPTS=${{ steps.variables.outputs.MAX_VERIFICATION_ATTEMPTS }}" >> .env
+          echo "SEND_SMS=${{ steps.variables.outputs.SEND_SMS }}" >> .env
 
       - name: Install dependencies
         run: npm install
 
       - name: Deploy to Lambda
-        uses: appleboy/lambda-action
+        uses: appleboy/lambda-action@master
         with:
           aws_access_key_id: ${{ secrets.SNS_AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.SNS_AWS_SECRET_ACCESS_KEY }}
