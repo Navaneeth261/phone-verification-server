@@ -35,4 +35,3 @@ jobs:
           aws_secret_access_key: ${{ secrets.SNS_AWS_SECRET_ACCESS_KEY }}
           region: ${{ secrets.SNS_AWS_REGION }}
           function_name: PhoneVerification-API
-          zip_file: .
