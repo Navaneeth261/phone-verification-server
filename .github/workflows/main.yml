@@ -18,7 +18,7 @@ jobs:
           echo "JWT_SECRET=${{ steps.secrets.outputs.JWT_SECRET }}" >> .env
           echo "SNS_AWS_ACCESS_KEY_ID=${{ steps.secrets.outputs.SNS_AWS_ACCESS_KEY_ID }}" >> .env
           echo "SNS_AWS_SECRET_ACCESS_KEY=${{ steps.secrets.outputs.SNS_AWS_SECRET_ACCESS_KEY }}" >> .env
-           echo "SNS_AWS_REGION=${{ steps.secrets.outputs.SNS_AWS_REGION }}" >> .env
+          echo "SNS_AWS_REGION=${{ steps.secrets.outputs.SNS_AWS_REGION }}" >> .env
           echo "ALLOWED_ORIGINS=${{ steps.variables.outputs.ALLOWED_ORIGINS }}" >> .env
           echo "HASH_VERIFICATION_CODE=${{ steps.variables.outputs.HASH_VERIFICATION_CODE }}" >> .env
           echo "VERIFICATION_CODE_EXPIRE_IN_MINS=${{ steps.variables.outputs.VERIFICATION_CODE_EXPIRE_IN_MINS }}" >> .env
@@ -31,9 +31,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.SNS_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.SNS_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.SNS_AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Update Lambda function code
         run: |
