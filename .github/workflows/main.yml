@@ -26,7 +26,7 @@ jobs:
           echo "SEND_SMS=${{ variables.SEND_SMS }}" >> .env
 
       - name: Print .env file
-          run: cat .env
+        run: cat .env
 
       - name: Install dependencies
         run: npm install
