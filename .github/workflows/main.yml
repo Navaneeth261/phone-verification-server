@@ -28,11 +28,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Deploy to Lambda
-        uses: appleboy/lambda-action@master
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws_access_key_id: ${{ secrets.SNS_AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.SNS_AWS_SECRET_ACCESS_KEY }}
-          aws_region: ${{ secrets.SNS_AWS_REGION }}
-          function_name: PhoneVerification-API
-          zip_file: .
+          aws-access-key-id: ${{ secrets.SNS_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.SNS_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.SNS_AWS_REGION }}
+
+      - name: Update Lambda function code
+          run: |
+            zip -r function.zip .
+            aws lambda update-function-code --function-name PhoneVerification-API --zip-file fileb://function.zip
