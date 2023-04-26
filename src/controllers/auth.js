@@ -11,6 +11,7 @@ import {
   MAX_VERIFICATION_ATTEMPTS,
   HASH_VERIFICATION_CODE,
   SEND_SMS,
+  COOKIE_DOMAIN,
 } from "../config/env.js";
 
 // Import local modules
@@ -52,7 +53,12 @@ export const loginWithCode = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-  res.clearCookie("jwt"); // replace "cookieName" with the actual name of your cookie
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    domain: COOKIE_DOMAIN
+  });  
   res.status(200).json({ message: "Logout successful" });
 };
 
@@ -333,6 +339,7 @@ export const verifyCode = async (req, res, action_type) => {
         secure: true,
         sameSite: "none",
         maxAge: 2 * 60 * 1000, // token expires in 2 minutes
+        domain: COOKIE_DOMAIN,
       });
 
       // Return the response with user information and JWT token
