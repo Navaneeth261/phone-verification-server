@@ -12,11 +12,11 @@ export const MONGODB_URL = process.env.MONGODB_URL; // MongoDB connection URL
 export const DATABASE_NAME = process.env.DATABASE_NAME
 export const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS.split(','); // Allowed origins for CORS
 export const JWT_SECRET = process.env.JWT_SECRET; // Secret key used for JWT generation
-export const JWT_EXPIRATION_IN_MINS = process.env.JWT_EXPIRATION_IN_MINS // Expiration time (in minutes) for JWT 
+export const JWT_EXPIRATION_IN_MINS = parseInt(process.env.JWT_EXPIRATION_IN_MINS) // Expiration time (in minutes) for JWT 
 
 export const HASH_VERIFICATION_CODE = process.env.HASH_VERIFICATION_CODE === 'true'; // Whether or not to hash the verification code
-export const VERIFICATION_CODE_EXPIRE_IN_MINS = process.env.VERIFICATION_CODE_EXPIRE_IN_MINS; // Expiration time (in minutes) for verification codes
-export const MAX_VERIFICATION_ATTEMPTS = process.env.MAX_VERIFICATION_ATTEMPTS; // Maximum number of attempts allowed for verification codes
+export const VERIFICATION_CODE_EXPIRE_IN_MINS = parseInt(process.env.VERIFICATION_CODE_EXPIRE_IN_MINS); // Expiration time (in minutes) for verification codes
+export const MAX_VERIFICATION_ATTEMPTS =  parseInt(process.env.MAX_VERIFICATION_ATTEMPTS); // Maximum number of attempts allowed for verification codes
 export const SEND_SMS = process.env.SEND_SMS === 'true'; // For Developement Purpose
 
 export const AWS_ACCESS_KEY_ID = process.env.SNS_AWS_ACCESS_KEY_ID; // AWS Access Key ID for SNS service

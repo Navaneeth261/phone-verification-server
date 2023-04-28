@@ -288,7 +288,7 @@ export const verifyCode = async (req, res, action_type) => {
 
     // Other Validation before Verification
 
-    if (user.verification.attempts > parseInt(MAX_VERIFICATION_ATTEMPTS)) {
+    if (user.verification.attempts > MAX_VERIFICATION_ATTEMPTS) {
       res.status(200).json({
         status: false,
         message:
