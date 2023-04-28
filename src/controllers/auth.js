@@ -11,6 +11,7 @@ import {
   MAX_VERIFICATION_ATTEMPTS,
   HASH_VERIFICATION_CODE,
   COOKIE_DOMAIN,
+  JWT_EXPIRATION_IN_MINS,
 } from "../config/env.js";
 
 // Import local modules
@@ -376,7 +377,7 @@ export const verifyCode = async (req, res, action_type) => {
         phoneNumber: user.phoneNumber,
       },
       JWT_SECRET,
-      { expiresIn: 2 * 60 } // token expires in 2 hours
+      { expiresIn: JWT_EXPIRATION_IN_MINS * 60 }
     );
 
     // Set the JWT token as an HTTP-only cookie
@@ -384,7 +385,7 @@ export const verifyCode = async (req, res, action_type) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      maxAge: 2 * 60 * 1000, // token expires in 2 hours
+      maxAge: JWT_EXPIRATION_IN_MINS * 60 * 1000, 
       domain: COOKIE_DOMAIN,
     });
 

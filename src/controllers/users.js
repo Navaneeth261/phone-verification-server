@@ -10,6 +10,9 @@ export const getUser = async (req, res) => {
   try {
     const { userId, phoneNumber } = req.body;
 
+    const user = await User.findOne({ phoneNumber });
+    const verificationHistory = user.verificationHistory;
+
     // Below messages are displayed in UI once the user login.
     // Find all messages in the collection and convert the result to an array
     const messages = await DbMessage.find({});
@@ -25,7 +28,7 @@ export const getUser = async (req, res) => {
     res.status(200).json({
       status: true,
       message: { ui: uiArr, server: apiArr },
-      data: { userId, phoneNumber },
+      data: { userId, phoneNumber, verificationHistory },
     });
   } catch (err) {
     console.log(err);

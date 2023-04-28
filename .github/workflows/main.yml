@@ -20,6 +20,8 @@ jobs:
           echo "SNS_AWS_ACCESS_KEY_ID=${{ secrets.SNS_AWS_ACCESS_KEY_ID }}" >> .env
           echo "SNS_AWS_SECRET_ACCESS_KEY=${{ secrets.SNS_AWS_SECRET_ACCESS_KEY }}" >> .env
           echo "SNS_AWS_REGION=${{ secrets.SNS_AWS_REGION }}" >> .env
+          echo "DATABASE_NAME=${{ vars.DATABASE_NAME }}" >> .env
+          echo "COOKIE_DOMAIN=${{ vars.COOKIE_DOMAIN }}" >> .env
           echo "ALLOWED_ORIGINS=${{ vars.ALLOWED_ORIGINS }}" >> .env
           echo "HASH_VERIFICATION_CODE=${{ vars.HASH_VERIFICATION_CODE }}" >> .env
           echo "VERIFICATION_CODE_EXPIRE_IN_MINS=${{ vars.VERIFICATION_CODE_EXPIRE_IN_MINS }}" >> .env
