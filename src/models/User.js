@@ -1,7 +1,48 @@
-import mongoose from "mongoose";
-import { VERIFICATION_CODE_EXPIRE_IN_MINS } from "../config/env.js";
+import mongoose from 'mongoose';
 
-// Define the user schema
+const verificationObject = {
+  _id: false,
+  id: {
+    type: Number,
+    required: true,
+  },
+  code_type: {
+    type: String,
+    enum: ["Login", "Register"],
+    required:true,
+  },
+  code: {
+    type: String,
+    required: true,
+  },
+  sentStatus: {
+    type: Boolean,
+    default: false,
+  },
+  createdAt: {
+    type: Date,
+    required: true,
+  },
+  attempts: {
+    type: Number,
+    default: 0,
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  verifiedAt: {
+    type: Date,
+  },
+  loggedOutAt: {
+    type: Date,
+  },
+  status: {
+    type: String,
+    required: true,
+  }
+};
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -18,36 +59,22 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    verificationCode: {
+    userStatus: {
       type: String,
       required: true,
     },
-    verificationCodeSentStatus: {
-      type: Boolean,
-      default: false,
-    },
-    verificationCodeExpiration: {
-      type: Date,
+    verification: {
+      type: verificationObject,
       required: true,
-      default: function () {
-        // Set default expiration date
-        return new Date(Date.now() + parseInt(VERIFICATION_CODE_EXPIRE_IN_MINS) * 60 * 1000);
-      },
     },
-    verificationAttempts: {
-      type: Number,
-      default: 0,
-    },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    lastVerifiedAt: {
-      type: Date,
+    verificationHistory: {
+      type: Map,
+      of: verificationObject,
+      default: new Map(),
     },
   },
   { timestamps: true }
 );
 
-// Create a new model from the user schema and export it
-export const User = mongoose.model("Users", userSchema);
+export const User = mongoose.model("User", userSchema);
+

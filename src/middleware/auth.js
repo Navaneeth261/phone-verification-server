@@ -20,13 +20,14 @@ export const verifyToken = async (req, res, next) => {
 
       // If verification succeeds, decode the token and add the user details to the request body
       if (verified) {
-        const { name, userId, phoneNumber } = jwt.decode(token, JWT_SECRET);
+        const { sessionId, name, userId, phoneNumber } = jwt.decode(token, JWT_SECRET);
 
         req.body = {
           ...req.body,
           userId,
           phoneNumber,
           name,
+          sessionId,
         };
 
         // Call the next middleware in the chain

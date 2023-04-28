@@ -10,7 +10,6 @@ import {
   VERIFICATION_CODE_EXPIRE_IN_MINS,
   MAX_VERIFICATION_ATTEMPTS,
   HASH_VERIFICATION_CODE,
-  SEND_SMS,
   COOKIE_DOMAIN,
 } from "../config/env.js";
 
@@ -18,6 +17,19 @@ import {
 import { User } from "../models/index.js";
 import { validatePhoneNumber } from "../helpers/phoneNumberValidation.js";
 import { sendVerificationCodeToPhoneNumber } from "../helpers/awsSnsHelper.js";
+
+import {
+  updateUser,
+  generateCode,
+  hashVerificaionCode,
+  validateRegister,
+  validateLogin,
+  validateGenerateCodeInputs,
+  validateVerifyAndRegisterInputs,
+  validateVerifyAndLoginInputs,
+  validateRegisterVerification,
+  validateLoginVerification,
+} from "./helpers/authHelper.js";
 
 // Use a whitelist of allowed country codes instead of checking for a single country
 // to allow for easier expansion in the future
@@ -37,36 +49,30 @@ export const verifyTokenResponse = async (req, res) => {
 };
 
 export const getRegisterCode = async (req, res) => {
-  await generateVerificationCode(req, res, "register");
+  await generateVerificationCode(req, res, "Register");
 };
 
 export const getLoginCode = async (req, res) => {
-  await generateVerificationCode(req, res, "login");
+  await generateVerificationCode(req, res, "Login");
 };
 
 export const registerWithCode = async (req, res) => {
-  await verifyCode(req, res, "register");
+  await verifyCode(req, res, "Register");
 };
 
 export const loginWithCode = async (req, res) => {
-  await verifyCode(req, res, "login");
+  await verifyCode(req, res, "Login");
 };
 
-export const logout = async (req, res) => {
-  res.clearCookie("jwt", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-    domain: COOKIE_DOMAIN
-  });  
-  res.status(200).json({ message: "Logout successful" });
-};
-
-// Refactor the getRegisterCode and getLoginCode functions to reduce code duplication
-const generateVerificationCode = async (req, res, action_type) => {
+export const generateVerificationCode = async (req, res, action_type) => {
   try {
-    const { countryCode: _countryCode, phoneNumber: _phoneNumber } = req.body;
+    const validateInputRes = validateGenerateCodeInputs(req.body);
+    if (!validateInputRes.status) {
+      res.status(200).json(validateInputRes);
+      return;
+    }
 
+    const { countryCode: _countryCode, phoneNumber: _phoneNumber } = req.body;
     // Validate the phone number using a separate helper function
     const {
       isValid: phoneNumberIsValid,
@@ -82,26 +88,23 @@ const generateVerificationCode = async (req, res, action_type) => {
     }
 
     // Check if the user exists in the database and whether the action is valid
-    const user = await User.findOne({ phoneNumber }).maxTimeMS(20000);
-    if (action_type === "register" && user && user.userId !== phoneNumber) {
-      res.status(200).json({
-        status: false,
-        message: "User already registered. Please login to continue",
-      });
-      return;
-    } else if (
-      action_type === "login" &&
-      (!user || user.userId === phoneNumber)
-    ) {
-      res.status(200).json({
-        status: false,
-        message:
-          "This phone number not registered with us. Please register to continue",
-      });
-      return;
+    const user = await User.findOne({ phoneNumber });
+
+    if (action_type === "Register") {
+      const validateRegisterRes = validateRegister(user);
+      if (!validateRegisterRes.status) {
+        res.status(409).json(validateRegisterRes);
+        return;
+      }
+    } else if (action_type === "Login") {
+      const validateLoginRes = validateLogin(user);
+      if (!validateLoginRes.status) {
+        res.status(409).json(validateLoginRes);
+        return;
+      }
     }
 
-    // Check if the country is allowed
+    // Check if the country is supported to send SMS
     if (!ALLOWED_COUNTRY_CODES.includes(countryIso2)) {
       res.status(200).json({
         status: false,
@@ -112,89 +115,73 @@ const generateVerificationCode = async (req, res, action_type) => {
       return;
     }
 
-    // Generate a 6-digit verification code
-    const _verificationCode = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
-
-    // Hash the verification code if configured to do so in the environment variables
-    let verificationCode;
-    if (HASH_VERIFICATION_CODE) {
-      const salt = await bcrypt.genSalt();
-      verificationCode = await bcrypt.hash(_verificationCode, salt);
-    } else {
-      verificationCode = _verificationCode
-    }
-
-    // set the verification code expiration time to 2 minutes from now
-    const expirationTime = new Date();
-    expirationTime.setMinutes(
-      expirationTime.getMinutes() + VERIFICATION_CODE_EXPIRE_IN_MINS
-    );
-
-    //for development and testing purposes
-    if (NODE_ENV === "development" || NODE_ENV === "test") {
-      console.log(`Phone Number: ${_countryCode}${_phoneNumber}`);
-      console.log(`Verification Code: ${_verificationCode}`);
-    }
+    let verificationCode = generateCode();
+    const textMessage = `Your one time verification code to ${action_type.toLowerCase()} is ${verificationCode}. Valid for 2mins.`;
 
     // send the verification code via SMS
-    const message = `Your one time verification code to ${action_type} is ${_verificationCode}. Valid for 2mins.`;
-    let sendCodeRes;
-    try {
-      if (SEND_SMS) {
-        sendCodeRes = await sendVerificationCodeToPhoneNumber(
-          phoneNumber,
-          message
-        );
-      } else {
-        console.log("SMS NOT SENT for testing")
-        sendCodeRes = { status: true }; // use a dummy response for development purposes
-      }
-    } catch (err) {
-      sendCodeRes = {
-        status: false,
-        message: "Error sending SMS",
-        error: err.message,
-      };
+    const sendCodeRes = await sendVerificationCodeToPhoneNumber(
+      phoneNumber,
+      textMessage
+    );
+
+    //Console log the Phone Number and Verification Code in Development Mode
+    if (NODE_ENV === "development") {
+      console.log(`Phone Number: ${_countryCode}${_phoneNumber}`);
+      console.log(`Verification Code: ${verificationCode}`);
+      console.log(`SMS Message: ${textMessage}`);
     }
 
-    if (action_type === "register") {
-      // create the user in the database
-      const user = await User.findOneAndUpdate(
+    if (HASH_VERIFICATION_CODE) {
+      verificationCode = hashVerificaionCode(verificationCode);
+    }
+
+    const verificationObject = {
+      id: user && user?.verification ? user.verification.id + 1 : 1,
+      code: verificationCode,
+      sentStatus: sendCodeRes.status,
+      createdAt: new Date(),
+      attempts: 0,
+      isVerified: false,
+      verifiedAt: null,
+      status: `${action_type} Code generated and SMS sent to user`,
+      code_type: action_type,
+    };
+
+    if (action_type === "Register") {
+      const newUser = await User.findOneAndUpdate(
         { phoneNumber },
         {
-          name: "",
+          name: " ",
           userId: phoneNumber,
           phoneNumber,
-          isVerified: false,
-          verificationCode,
-          verificationCodeSentStatus: sendCodeRes.status,
-          verificationCodeExpiration: expirationTime,
-          verificationAttempts: 0,
+          userStatus: "Not Registered",
+          verification: verificationObject,
+          $set: {
+            [`verificationHistory.${verificationObject.id.toString()}`]:
+              verificationObject,
+          },
         },
-        { upsert: true, new: true }
+        { upsert: true, new: true, runValidators: true }
       );
-    } else if (action_type === "login") {
-      // update the user in the database
-      user.isVerified = false;
-      user.verificationCode = verificationCode;
-      user.verificationCodeSentStatus = sendCodeRes.status;
-      user.verificationCodeExpiration = expirationTime;
-      user.verificationAttempts = 0;
+    } else if (action_type === "Login") {
+      user.verification = verificationObject;
+      user.verificationHistory.set(
+        verificationObject.id.toString(),
+        verificationObject
+      );
       await user.save();
     }
 
-    if (!sendCodeRes.status) {
+    if (sendCodeRes.status) {
+      res.json({
+        status: true,
+        message: `Verification code has been sent. Code is valid for 2 minutes`,
+      });
+    } else {
       res.json({
         status: false,
         message: sendCodeRes.message,
         error: sendCodeRes.error,
-      });
-    } else {
-      res.json({
-        status: true,
-        message: `Verification code has been sent. Code is valid for 2 minutes`,
       });
     }
   } catch (err) {
@@ -210,8 +197,20 @@ const generateVerificationCode = async (req, res, action_type) => {
 /* VERIFY CODE AND REGISTER / LOGIN USER */
 export const verifyCode = async (req, res, action_type) => {
   try {
+    //Validating the Inputs in request body
+    let validateInputRes;
+    if (action_type === "Register") {
+      validateInputRes = validateVerifyAndRegisterInputs(req.body);
+    } else if (action_type === "Login") {
+      validateInputRes = validateVerifyAndLoginInputs(req.body);
+    }
+    if (!validateInputRes.status) {
+      res.status(200).json(validateInputRes);
+      return;
+    }
+
     // Get request body parameters
-    let {
+    const {
       name,
       countryCode: _countryCode,
       phoneNumber: _phoneNumber,
@@ -242,12 +241,14 @@ export const verifyCode = async (req, res, action_type) => {
       return;
     }
 
-    // Find the user in the database
+    // Find the user in the database and upate the verificaation attempt
     const user = await User.findOneAndUpdate(
       { phoneNumber },
-      { $inc: { verificationAttempts: 1 } },
+      { $inc: { "verification.attempts": 1 } },
       { new: true }
     );
+
+    const sessionId = user?.verification?.id.toString();
 
     // Handle cases where user is not found or invalid
     if (!user) {
@@ -255,104 +256,149 @@ export const verifyCode = async (req, res, action_type) => {
         status: false,
         message: "Verification code not yet generated for this phone number.",
       });
-    } else if (action_type === "register" && user.userId !== phoneNumber) {
-      res.status(200).json({
-        status: false,
-        message:
-          "This phone number is already registered with us. Please login to continue.",
-      });
-    } else if (action_type === "login" && user.userId === phoneNumber) {
-      res.status(200).json({
-        status: false,
-        message:
-          "This phone number is not yet registered with us. Please register to continue.",
-      });
-    } else if (action_type === "login" && user.isVerified) {
-      res.status(200).json({
-        status: false,
-        message:
-          "This phone number is already verified with last generated code. Please generate new code to verify again.",
-      });
-    } else if (
-      user.verificationAttempts > parseInt(MAX_VERIFICATION_ATTEMPTS)
-    ) {
+      return;
+    }
+
+    // Validate the Verification Request
+    if (action_type === "Register") {
+      const validateRegisterRes = validateRegisterVerification(user);
+      if (!validateRegisterRes.status) {
+        res.status(409).json(validateRegisterRes);
+        const verificationObject = {
+          ...user.verification.toObject(),
+          status: user.verification.status + ", " + validateRegisterRes.message,
+        };
+        updateUser(sessionId, user, verificationObject);
+        return;
+      }
+    } else if (action_type === "Login") {
+      const validateLoginRes = validateLoginVerification(user);
+      if (!validateLoginRes.status) {
+        res.status(409).json(validateLoginRes);
+
+        const verificationObject = {
+          ...user.verification.toObject(),
+          status: user.verification.status + ", " + validateLoginRes.message,
+        };
+        updateUser(sessionId, user, verificationObject);
+        return;
+      }
+    }
+
+    // Other Validation before Verification
+
+    if (user.verification.attempts > parseInt(MAX_VERIFICATION_ATTEMPTS)) {
       res.status(200).json({
         status: false,
         message:
           "Maximum number of attempts reached. Please generate new verification code",
       });
+      const verificationObject = {
+        ...user.verification.toObject(),
+        status:
+          user.verification.status +
+          ", Maximum number of attempts reached. Please generate new verification code",
+      };
+      updateUser(sessionId, user, verificationObject);
+      return;
     }
+
     // Check if the verification code has expired
-    else if (
-      !user.verificationCode ||
-      user.verificationCodeExpiration < new Date()
-    ) {
-      user.isVerified = false;
-      user.verificationCode = "";
+    const isExpired =
+      (new Date() - user.verification.createdAt) / (1000 * 60) >
+      VERIFICATION_CODE_EXPIRE_IN_MINS
+        ? true
+        : false;
+    if (isExpired) {
+      user.verification.isVerified = false;
+      user.verification.code = " ";
       res.status(200).json({
         status: false,
         message:
           "Verification code has expired. Please generate new verification code.",
       });
+
+      const verificationObject = {
+        ...user.verification.toObject(),
+        status:
+          user.verification.status +
+          ", Verification code has expired. Please generate new verification code.",
+      };
+      updateUser(sessionId, user, verificationObject);
+      return;
     }
     // Check if the verification code matches
-    else {
-      let isMatch;
-      if (HASH_VERIFICATION_CODE) {
-        isMatch = await bcrypt.compare(
-          verificationCode.toString(),
-          user.verificationCode
-        );
-      } else {
-        isMatch = verificationCode == user.verificationCode;
-      }
-      if (!isMatch) {
-        return res
-          .status(200)
-          .json({ status: false, message: "Invalid verification code" });
-      }
-
-      // Update the user's status to "verified"
-      user.isVerified = true;
-      user.lastVerifiedAt = new Date();
-      user.verificationCode = " ";
-
-      // Generate a JWT token with user information
-      const token = jwt.sign(
-        { name: user.name, userId: user.userId, phoneNumber: user.phoneNumber },
-        JWT_SECRET,
-        { expiresIn: 120 * 60 } // token expires in 2 hours
+    let isMatch;
+    if (HASH_VERIFICATION_CODE) {
+      isMatch = await bcrypt.compare(
+        verificationCode.toString(),
+        user.verification.code
       );
-
-      // If action_type is "register", set user ID and name
-      if (action_type === "register") {
-        user.userId = uuidv4();
-        user.name = name;
-      }
-
-      // Save the updated user information to the database
-      await user.save();
-
-      // Set the JWT token as an HTTP-only cookie
-      res.cookie("jwt", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        maxAge: 2 * 60 * 1000, // token expires in 2 minutes
-        domain: COOKIE_DOMAIN,
-      });
-
-      // Return the response with user information and JWT token
-      res.status(200).json({
-        status: true,
-        message: "Phone number successfully verified",
-        data: {
-          name: user.name,
-          userId: user.userId,
-          phoneNumber: user.phoneNumber,
-        },
-      });
+    } else {
+      isMatch = verificationCode == user.verification.code;
     }
+    if (!isMatch) {
+      res
+        .status(200)
+        .json({ status: false, message: "Invalid verification code" });
+      const verificationObject = {
+        ...user.verification.toObject(),
+        status: user.verification.status + ", Invalid verification code.",
+      };
+      updateUser(sessionId, user, verificationObject);
+      return;
+    }
+
+    // If action_type is "Register", set user ID and name
+    if (action_type === "Register") {
+      user.userId = uuidv4();
+      user.name = name;
+      user.userStatus = "Registered";
+    }
+
+    const verificationObject = {
+      ...user.verification.toObject(),
+      code: " ",
+      isVerified: true,
+      verifiedAt: new Date(),
+      status:
+        user.verification.status +
+        `, ${action_type} Code verified and logged in`,
+    };
+
+    updateUser(sessionId, user, verificationObject);
+    // Generate a JWT token with user information
+    const token = jwt.sign(
+      {
+        sessionId,
+        name: user.name,
+        userId: user.userId,
+        phoneNumber: user.phoneNumber,
+      },
+      JWT_SECRET,
+      { expiresIn: 2 * 60 } // token expires in 2 hours
+    );
+
+    // Set the JWT token as an HTTP-only cookie
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 2 * 60 * 1000, // token expires in 2 hours
+      domain: COOKIE_DOMAIN,
+    });
+
+    // Return the response with user information and JWT token
+    res.status(200).json({
+      status: true,
+      message: "Phone number successfully verified",
+      data: {
+        name: user.name,
+        userId: user.userId,
+        phoneNumber: user.phoneNumber,
+        sessionId,
+      },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({

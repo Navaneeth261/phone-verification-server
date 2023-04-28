@@ -9,6 +9,7 @@ export const PORT = process.env.PORT; // Port on which the app will run
 export const COOKIE_DOMAIN = NODE_ENV === "development" ? "localhost" : "9nykq87i2h.execute-api.ap-south-1.amazonaws.com"
 
 export const MONGODB_URL = process.env.MONGODB_URL; // MongoDB connection URL
+export const DATABASE_NAME = process.env.DATABASE_NAME
 export const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS.split(','); // Allowed origins for CORS
 export const JWT_SECRET = process.env.JWT_SECRET; // Secret key used for JWT generation
 

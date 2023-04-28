@@ -5,7 +5,7 @@ import cors from 'cors';
 import serverless from 'serverless-http';
 
 // Import environment variables
-import { NODE_ENV, PORT, MONGODB_URL, ALLOWED_ORIGINS } from './config/env.js';
+import { NODE_ENV, PORT, MONGODB_URL, DATABASE_NAME, ALLOWED_ORIGINS } from './config/env.js';
 
 // Import local modules
 import routes from './routes/index.js';
@@ -56,6 +56,7 @@ app.use((req, res) => {
 // Connect to the MongoDB database and start the server
 mongoose
   .connect(MONGODB_URL, {
+    dbName: DATABASE_NAME,
     useNewUrlParser: true,
     useUnifiedTopology: true,
     connectTimeoutMS: 30000,
@@ -72,5 +73,6 @@ mongoose
 
 // Export the app as a serverless function for use with AWS Lambda
 export const handler = serverless(app);
+export default app;
 
 
